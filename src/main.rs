@@ -1,10 +1,7 @@
 use gtk::prelude::*;
-use relm4::gtk::{gdk, CssProvider, StyleContext};
-use relm4::gtk::gdk::{Cursor, Display, DisplayManager, SurfaceEdge};
-use relm4::gtk::glib::Propagation;
-use relm4::gtk::AccessibleRole::Row;
+use relm4::gtk::gdk::{Cursor, Display, SurfaceEdge};
+use relm4::gtk::{gdk, CssProvider};
 use relm4::prelude::*;
-use std::ptr::write;
 
 struct App {
     counter: u8,
@@ -18,7 +15,7 @@ enum Msg {
 
 const BORDER_SIZE: f64 = 20f64;
 
-fn which_edge(
+fn select_edge(
     x: f64,
     y: f64,
     actual_window_width: f64,
@@ -45,6 +42,20 @@ fn which_edge(
     };
     edge
 }
+fn cursor_name_from_edge(edge: &Option<SurfaceEdge>) -> &str {
+    match edge {
+        Some(SurfaceEdge::NorthWest) => "nw-resize",
+        Some(SurfaceEdge::NorthEast) => "ne-resize",
+        Some(SurfaceEdge::SouthWest) => "sw-resize",
+        Some(SurfaceEdge::SouthEast) => "se-resize",
+        Some(SurfaceEdge::West) => "w-resize",
+        Some(SurfaceEdge::East) => "e-resize",
+        Some(SurfaceEdge::North) => "n-resize",
+        Some(SurfaceEdge::South) => "s-resize",
+        Some(_) => "default",
+        None => "default",
+    }
+}
 
 #[relm4::component]
 impl SimpleComponent for App {
@@ -55,7 +66,7 @@ impl SimpleComponent for App {
     view! {
         #[name = "window"]
         gtk::Window {
-            set_title: Some("Simple app"),
+            set_title: Some("Demo app"),
             set_default_size: (300, 200),
             set_decorated: false,
 
@@ -125,20 +136,9 @@ impl SimpleComponent for App {
             let actual_window_width = width - BORDER_SIZE * 2.0;
             let actual_window_height = height - BORDER_SIZE * 2.0;
 
-            let edge = which_edge(x, y, actual_window_width, actual_window_height);
+            let edge = select_edge(x, y, actual_window_width, actual_window_height);
 
-            let cursor_name = match edge {
-                Some(SurfaceEdge::NorthWest) => "nw-resize",
-                Some(SurfaceEdge::NorthEast) => "ne-resize",
-                Some(SurfaceEdge::SouthWest) => "sw-resize",
-                Some(SurfaceEdge::SouthEast) => "se-resize",
-                Some(SurfaceEdge::West) => "w-resize",
-                Some(SurfaceEdge::East) => "e-resize",
-                Some(SurfaceEdge::North) => "n-resize",
-                Some(SurfaceEdge::South) => "s-resize",
-                Some(_) => "default",
-                None => "default",
-            };
+            let cursor_name = cursor_name_from_edge(&edge);
 
             let cursor = Cursor::from_name(cursor_name, None);
 
@@ -146,9 +146,9 @@ impl SimpleComponent for App {
         });
 
         let gesture_click = gtk::GestureClick::new();
-        let window_clone = window.clone();
+        let window_clone2 = window.clone();
         gesture_click.connect_pressed(move |event_controller, button, x, y| {
-            let surface = window_clone.native().unwrap().surface().unwrap();
+            let surface = window_clone2.native().unwrap().surface().unwrap();
             let toplevel = surface.downcast_ref::<gdk::Toplevel>().unwrap();
 
             let width = toplevel.width() as f64;
@@ -157,7 +157,7 @@ impl SimpleComponent for App {
             let actual_window_width = width - BORDER_SIZE * 2.0;
             let actual_window_height = height - BORDER_SIZE * 2.0;
 
-            let edge = which_edge(x, y, actual_window_width, actual_window_height);
+            let edge = select_edge(x, y, actual_window_width, actual_window_height);
 
             if edge.is_none() {
                 return;
@@ -205,6 +205,6 @@ fn apply_css() {
 }
 
 fn main() {
-    let app = RelmApp::new("io.github.chrisimx.customdecorations");
+    let app = RelmApp::new("relm4.example.simple");
     app.run::<App>(0);
 }

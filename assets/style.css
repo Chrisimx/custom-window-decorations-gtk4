@@ -11,7 +11,7 @@ window:not(.maximized) {
 }
 
 window.maximized {
-    border-radius: 0px;
-    margin: 0px;
+    border-radius: 0;
+    margin: 0;
     box-shadow: none;
 }
