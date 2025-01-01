@@ -58,13 +58,6 @@ impl SimpleComponent for App {
             set_title: Some("Simple app"),
             set_default_size: (300, 200),
             set_decorated: false,
-            inline_css: format!(
-                "border-radius: 12px; \
-                background-color: #7ba6edff; \
-                color: white; \
-                margin: {BORDER_SIZE}px; \
-                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);"
-            ).as_str(),
 
             gtk::Box {
                 set_orientation: gtk::Orientation::Vertical,
